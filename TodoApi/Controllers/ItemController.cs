@@ -41,16 +41,30 @@ namespace TodoApi.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> PutItem(long id, UpdateItemDTO payload)
         {
-            var item = await _context.TodoItems.FindAsync(id);
+            var item = await _context.TodoItems
+                .FirstOrDefaultAsync(i => i.Id == id);
 
             if (item == null)
             {
-                return NotFound();
+                return NotFound(new { message = $"Item con ID {id} no encontrado" });
             }
 
             item.Title = payload.Title;
+            item.Description = payload.Description;
             item.IsComplete = payload.IsComplete;
-            await _context.SaveChangesAsync();
+            
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await _context.TodoItems.AnyAsync(e => e.Id == id))
+                {
+                    return NotFound();
+                }
+                throw;
+            }
 
             return Ok(item);
         }
@@ -59,10 +73,19 @@ namespace TodoApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Item>> PostItem(CreateItemDTO payload)
         {
+            // Verificar que la lista existe
+            var listExists = await _context.TodoList.AnyAsync(l => l.Id == payload.ListId);
+            if (!listExists)
+            {
+                return BadRequest($"La lista con ID {payload.ListId} no existe.");
+            }
+
             var item = new Item 
             { 
                 Title = payload.Title,
-                IsComplete = payload.IsComplete
+                Description = payload.Description,
+                IsComplete = payload.IsComplete,
+                ListId = payload.ListId
             };
 
             _context.TodoItems.Add(item);
