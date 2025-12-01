@@ -2,9 +2,9 @@ namespace TodoApi.Models;
 
 public class List
 {
-    public long Id { get; set; }
-    public required string Name { get; set; }
+    public long Id { get; set; }           
+    public string Name { get; set; } = null!;  
 
-    //Lsta de ítems asociados
-    public List<Item> Items { get; set; }
+    // Relación 1:N
+    public ICollection<Item> Items { get; set; } = new List<Item>();
 }

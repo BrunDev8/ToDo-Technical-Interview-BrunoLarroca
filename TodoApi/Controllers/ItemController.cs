@@ -49,7 +49,7 @@ namespace TodoApi.Controllers
                 return NotFound(new { message = $"Item con ID {id} no encontrado" });
             }
 
-            item.Title = payload.Title;
+            item.Title = payload.Name;
             item.Description = payload.Description;
             item.IsComplete = payload.IsComplete;
             
@@ -82,7 +82,7 @@ namespace TodoApi.Controllers
 
             var item = new Item 
             { 
-                Title = payload.Title,
+                Title = payload.Name,
                 Description = payload.Description,
                 IsComplete = payload.IsComplete,
                 ListId = payload.ListId

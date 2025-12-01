@@ -4,7 +4,7 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<TodoContext>(opt =>
-    opt.UseSqlServer(builder.Configuration.GetConnectionString("TodoContext"))
+    opt.UseNpgsql(builder.Configuration.GetConnectionString("TodoContext"))
 );
 
 builder.Services.AddControllers();
@@ -17,12 +17,6 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
         Title = "TodoApi",
         Description = "API REST para gestión de listas de tareas (Todo Lists) con sus respectivos ítems",
-        Contact = new OpenApiContact
-        {
-            Name = "Crunchloop",
-            Email = "mfernandez@crunchloop.io",
-            Url = new Uri("https://crunchloop.io")
-        }
     });
 
     var xmlFilename = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
