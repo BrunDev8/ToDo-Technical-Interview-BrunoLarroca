@@ -34,7 +34,7 @@ public class TodoContext : DbContext
                   .HasColumnType("bigint");
 
             entity.Property(i => i.Title)
-                  .HasColumnName("Name") // corresponde a la columna "Name" de la tabla
+                  .HasColumnName("Name") 
                   .HasColumnType("character varying")
                   .IsRequired();
 
