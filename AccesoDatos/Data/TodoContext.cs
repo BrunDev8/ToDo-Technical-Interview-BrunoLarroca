@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using TodoApi.Models;
+using Dominio.Entidades;
+
+namespace AccesoDatos.Data;
 
 public class TodoContext : DbContext
 {
@@ -57,5 +59,4 @@ public class TodoContext : DbContext
                   .OnDelete(DeleteBehavior.Cascade);
         });
     }
-
 }

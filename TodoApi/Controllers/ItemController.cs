@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using TodoApi.Dtos.Item;
-using TodoApi.Models;
+using Dominio.Entidades;
+using ToDo.LogicaAplicacion.CasosDeUso.CasosDeItem;
 
 namespace TodoApi.Controllers
 {
@@ -9,25 +9,39 @@ namespace TodoApi.Controllers
     [ApiController]
     public class ItemController : ControllerBase
     {
-        private readonly TodoContext _context;
+        private readonly IListarItemsCU _listarItemsCU;
+        private readonly IObtenerItemPorIdCU _obtenerItemPorIdCU;
+        private readonly ICrearItemCU _crearItemCU;
+        private readonly IActualizarItemCU _actualizarItemCU;
+        private readonly IEliminarItemCU _eliminarItemCU;
 
-        public ItemController(TodoContext context)
+        public ItemController(
+            IListarItemsCU listarItemsCU,
+            IObtenerItemPorIdCU obtenerItemPorIdCU,
+            ICrearItemCU crearItemCU,
+            IActualizarItemCU actualizarItemCU,
+            IEliminarItemCU eliminarItemCU)
         {
-            _context = context;
+            _listarItemsCU = listarItemsCU;
+            _obtenerItemPorIdCU = obtenerItemPorIdCU;
+            _crearItemCU = crearItemCU;
+            _actualizarItemCU = actualizarItemCU;
+            _eliminarItemCU = eliminarItemCU;
         }
 
         // GET: api/items
         [HttpGet]
-        public async Task<ActionResult<IList<Item>>> GetItems()
+        public async Task<ActionResult<IEnumerable<Item>>> GetItems()
         {
-            return Ok(await _context.TodoItems.ToListAsync());
+            var items = await _listarItemsCU.EjecutarAsync();
+            return Ok(items);
         }
 
         // GET: api/items/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Item>> GetItem(long id)
         {
-            var item = await _context.TodoItems.FindAsync(id);
+            var item = await _obtenerItemPorIdCU.EjecutarAsync(id);
 
             if (item == null)
             {
@@ -41,29 +55,11 @@ namespace TodoApi.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> PutItem(long id, UpdateItemDTO payload)
         {
-            var item = await _context.TodoItems
-                .FirstOrDefaultAsync(i => i.Id == id);
+            var item = await _actualizarItemCU.EjecutarAsync(id, payload);
 
             if (item == null)
             {
                 return NotFound(new { message = $"Item con ID {id} no encontrado" });
-            }
-
-            item.Title = payload.Name;
-            item.Description = payload.Description;
-            item.IsComplete = payload.IsComplete;
-            
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await _context.TodoItems.AnyAsync(e => e.Id == id))
-                {
-                    return NotFound();
-                }
-                throw;
             }
 
             return Ok(item);
@@ -73,23 +69,12 @@ namespace TodoApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Item>> PostItem(CreateItemDTO payload)
         {
-            // Verificar que la lista existe
-            var listExists = await _context.TodoList.AnyAsync(l => l.Id == payload.ListId);
-            if (!listExists)
+            var item = await _crearItemCU.EjecutarAsync(payload);
+            
+            if (item == null)
             {
                 return BadRequest($"La lista con ID {payload.ListId} no existe.");
             }
-
-            var item = new Item 
-            { 
-                Title = payload.Name,
-                Description = payload.Description,
-                IsComplete = payload.IsComplete,
-                ListId = payload.ListId
-            };
-
-            _context.TodoItems.Add(item);
-            await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetItem", new { id = item.Id }, item);
         }
@@ -98,14 +83,12 @@ namespace TodoApi.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteItem(long id)
         {
-            var item = await _context.TodoItems.FindAsync(id);
-            if (item == null)
+            var resultado = await _eliminarItemCU.EjecutarAsync(id);
+            
+            if (!resultado)
             {
                 return NotFound();
             }
-
-            _context.TodoItems.Remove(item);
-            await _context.SaveChangesAsync();
 
             return NoContent();
         }

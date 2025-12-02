@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TodoApi.Dtos;
 using TodoApi.Dtos.List;
-using TodoApi.Models;
+using Dominio.Entidades;
+using ToDo.LogicaAplicacion.CasosDeUso.CasosDeList;
 
 namespace TodoApi.Controllers
 {
@@ -10,25 +9,39 @@ namespace TodoApi.Controllers
     [ApiController]
     public class ListController : ControllerBase
     {
-        private readonly TodoContext _context;
+        private readonly IListarListsCU _listarListsCU;
+        private readonly IObtenerListPorIdCU _obtenerListPorIdCU;
+        private readonly ICrearListCU _crearListCU;
+        private readonly IActualizarListCU _actualizarListCU;
+        private readonly IEliminarListCU _eliminarListCU;
 
-        public ListController(TodoContext context)
+        public ListController(
+            IListarListsCU listarListsCU,
+            IObtenerListPorIdCU obtenerListPorIdCU,
+            ICrearListCU crearListCU,
+            IActualizarListCU actualizarListCU,
+            IEliminarListCU eliminarListCU)
         {
-            _context = context;
+            _listarListsCU = listarListsCU;
+            _obtenerListPorIdCU = obtenerListPorIdCU;
+            _crearListCU = crearListCU;
+            _actualizarListCU = actualizarListCU;
+            _eliminarListCU = eliminarListCU;
         }
 
         // GET: api/lists
         [HttpGet]
-        public async Task<ActionResult<IList<List>>> GetLists()
+        public async Task<ActionResult<IEnumerable<List>>> GetLists()
         {
-            return Ok(await _context.TodoList.ToListAsync());
+            var lists = await _listarListsCU.EjecutarAsync();
+            return Ok(lists);
         }
 
         // GET: api/lists/5
         [HttpGet("{id}")]
         public async Task<ActionResult<List>> GetList(long id)
         {
-            var list = await _context.TodoList.FindAsync(id);
+            var list = await _obtenerListPorIdCU.EjecutarAsync(id);
 
             if (list == null)
             {
@@ -42,15 +55,12 @@ namespace TodoApi.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> PutList(long id, UpdateListDTO payload)
         {
-            var list = await _context.TodoList.FindAsync(id);
+            var list = await _actualizarListCU.EjecutarAsync(id, payload);
 
             if (list == null)
             {
                 return NotFound();
             }
-
-            list.Name = payload.Name;
-            await _context.SaveChangesAsync();
 
             return Ok(list);
         }
@@ -59,11 +69,7 @@ namespace TodoApi.Controllers
         [HttpPost]
         public async Task<ActionResult<List>> PostList(CreateListDTO payload)
         {
-            var list = new List { Name = payload.Name };
-
-            _context.TodoList.Add(list);
-            await _context.SaveChangesAsync();
-
+            var list = await _crearListCU.EjecutarAsync(payload);
             return CreatedAtAction("GetList", new { id = list.Id }, list);
         }
 
@@ -71,17 +77,14 @@ namespace TodoApi.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteList(long id)
         {
-            var list = await _context.TodoList.FindAsync(id);
-            if (list == null)
+            var resultado = await _eliminarListCU.EjecutarAsync(id);
+            
+            if (!resultado)
             {
                 return NotFound();
             }
 
-            _context.TodoList.Remove(list);
-            await _context.SaveChangesAsync();
-
             return NoContent();
         }
-
     }
 }
