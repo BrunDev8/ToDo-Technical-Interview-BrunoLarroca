@@ -17,4 +17,11 @@ public class ListRepositorio : Repositorio<List>, IListRepositorio
             .Include(l => l.Items)
             .FirstOrDefaultAsync(l => l.Id == id);
     }
+
+    public async Task<IEnumerable<List>> ObtenerTodosConItemsAsync()
+    {
+        return await _context.TodoList
+            .Include(l => l.Items)
+            .ToListAsync();
+    }
 }

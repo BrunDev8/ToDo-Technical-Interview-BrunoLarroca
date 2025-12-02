@@ -10,12 +10,4 @@
     <ProjectReference Include="..\Dominio\Dominio.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="CasosDeUso\CasosDeAuditoria\" />
-    <Folder Include="CasosDeUso\CasosDeEquipo\" />
-    <Folder Include="CasosDeUso\CasosDePago\" />
-    <Folder Include="CasosDeUso\CasosDeTipoGasto\" />
-    <Folder Include="CasosDeUso\CasosDeUsuario\" />
-  </ItemGroup>
-
 </Project>

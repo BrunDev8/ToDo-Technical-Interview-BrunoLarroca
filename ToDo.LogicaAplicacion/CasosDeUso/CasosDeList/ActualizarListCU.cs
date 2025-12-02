@@ -20,6 +20,11 @@ public class ActualizarListCU : IActualizarListCU
 
     public async Task<List?> EjecutarAsync(long id, UpdateListDTO dto)
     {
+        if (id <= 0)
+        {
+            throw new ArgumentException("El ID debe ser mayor a 0.", nameof(id));
+        }
+
         var list = await _listRepositorio.ObtenerPorIdAsync(id);
         
         if (list == null)
@@ -28,6 +33,10 @@ public class ActualizarListCU : IActualizarListCU
         }
 
         list.Name = dto.Name;
+
+        // Validar antes de guardar
+        list.Validar();
+
         await _listRepositorio.ActualizarAsync(list);
 
         return list;

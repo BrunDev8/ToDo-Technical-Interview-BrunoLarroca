@@ -18,6 +18,11 @@ public class EliminarItemCU : IEliminarItemCU
 
     public async Task<bool> EjecutarAsync(long id)
     {
+        if (id <= 0)
+        {
+            throw new ArgumentException("El ID debe ser mayor a 0.", nameof(id));
+        }
+
         var item = await _itemRepositorio.ObtenerPorIdAsync(id);
         
         if (item == null)

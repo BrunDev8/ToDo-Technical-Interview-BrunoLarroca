@@ -19,6 +19,11 @@ public class ObtenerListPorIdCU : IObtenerListPorIdCU
 
     public async Task<List?> EjecutarAsync(long id)
     {
+        if (id <= 0)
+        {
+            throw new ArgumentException("El ID debe ser mayor a 0.", nameof(id));
+        }
+
         return await _listRepositorio.ObtenerPorIdAsync(id);
     }
 }

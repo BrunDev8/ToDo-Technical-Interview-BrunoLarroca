@@ -19,6 +19,11 @@ public class ObtenerItemPorIdCU : IObtenerItemPorIdCU
 
     public async Task<Item?> EjecutarAsync(long id)
     {
+        if (id <= 0)
+        {
+            throw new ArgumentException("El ID debe ser mayor a 0.", nameof(id));
+        }
+
         return await _itemRepositorio.ObtenerPorIdAsync(id);
     }
 }

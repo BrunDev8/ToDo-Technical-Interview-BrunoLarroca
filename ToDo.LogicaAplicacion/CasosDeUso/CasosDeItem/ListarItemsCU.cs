@@ -6,6 +6,7 @@ namespace ToDo.LogicaAplicacion.CasosDeUso.CasosDeItem;
 public interface IListarItemsCU
 {
     Task<IEnumerable<Item>> EjecutarAsync();
+    Task<IEnumerable<Item>> EjecutarAsync(long listId);
 }
 
 public class ListarItemsCU : IListarItemsCU
@@ -20,5 +21,10 @@ public class ListarItemsCU : IListarItemsCU
     public async Task<IEnumerable<Item>> EjecutarAsync()
     {
         return await _itemRepositorio.ObtenerTodosAsync();
+    }
+
+    public async Task<IEnumerable<Item>> EjecutarAsync(long listId)
+    {
+        return await _itemRepositorio.ObtenerPorListaAsync(listId);
     }
 }

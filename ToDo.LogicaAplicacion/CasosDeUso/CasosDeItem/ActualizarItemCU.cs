@@ -20,6 +20,11 @@ public class ActualizarItemCU : IActualizarItemCU
 
     public async Task<Item?> EjecutarAsync(long id, UpdateItemDTO dto)
     {
+        if (id <= 0)
+        {
+            throw new ArgumentException("El ID debe ser mayor a 0.", nameof(id));
+        }
+
         var item = await _itemRepositorio.ObtenerPorIdAsync(id);
         
         if (item == null)
@@ -27,9 +32,21 @@ public class ActualizarItemCU : IActualizarItemCU
             return null;
         }
 
-        item.Title = dto.Name;
-        item.Description = dto.Description;
+        // Solo actualizar los campos que se enviaron
+        if (!string.IsNullOrWhiteSpace(dto.Name))
+        {
+            item.Title = dto.Name;
+        }
+
+        if (!string.IsNullOrWhiteSpace(dto.Description))
+        {
+            item.Description = dto.Description;
+        }
+
         item.IsComplete = dto.IsComplete;
+
+        // Validar antes de guardar
+        item.Validar();
 
         await _itemRepositorio.ActualizarAsync(item);
 

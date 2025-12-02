@@ -22,6 +22,7 @@ public class CrearItemCU : ICrearItemCU
 
     public async Task<Item?> EjecutarAsync(CreateItemDTO dto)
     {
+        // Verificar que la lista existe
         var listExists = await _listRepositorio.ExisteAsync(dto.ListId);
         if (!listExists)
         {
@@ -35,6 +36,9 @@ public class CrearItemCU : ICrearItemCU
             IsComplete = dto.IsComplete,
             ListId = dto.ListId
         };
+
+        // Validar antes de guardar
+        item.Validar();
 
         return await _itemRepositorio.AgregarAsync(item);
     }

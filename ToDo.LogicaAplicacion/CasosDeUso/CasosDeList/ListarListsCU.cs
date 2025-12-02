@@ -1,11 +1,13 @@
 using Dominio.Entidades;
 using Dominio.InterfacesRepositorio;
+using ToDo.LogicaAplicacion.Dtos.List;
+using TodoApi.Dtos.Item;
 
 namespace ToDo.LogicaAplicacion.CasosDeUso.CasosDeList;
 
 public interface IListarListsCU
 {
-    Task<IEnumerable<List>> EjecutarAsync();
+    Task<IEnumerable<ListResponseDTO>> EjecutarAsync();
 }
 
 public class ListarListsCU : IListarListsCU
@@ -17,8 +19,22 @@ public class ListarListsCU : IListarListsCU
         _listRepositorio = listRepositorio;
     }
 
-    public async Task<IEnumerable<List>> EjecutarAsync()
+    public async Task<IEnumerable<ListResponseDTO>> EjecutarAsync()
     {
-        return await _listRepositorio.ObtenerTodosAsync();
+        var lists = await _listRepositorio.ObtenerTodosConItemsAsync();
+        
+        return lists.Select(list => new ListResponseDTO
+        {
+            Id = list.Id,
+            Name = list.Name,
+            Items = list.Items?.Select(item => new ItemResponseDTO
+            {
+                Id = item.Id,
+                Title = item.Title,
+                Description = item.Description,
+                IsComplete = item.IsComplete,
+                ListId = item.ListId
+            })
+        });
     }
 }

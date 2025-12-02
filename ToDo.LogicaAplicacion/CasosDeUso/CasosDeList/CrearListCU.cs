@@ -25,6 +25,9 @@ public class CrearListCU : ICrearListCU
             Name = dto.Name
         };
 
+        // Validar antes de guardar
+        list.Validar();
+
         return await _listRepositorio.AgregarAsync(list);
     }
 }
