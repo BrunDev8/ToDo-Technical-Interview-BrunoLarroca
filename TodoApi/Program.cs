@@ -37,7 +37,7 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
     {
-        Version = "v1",
+        Version = "v2.0",
         Title = "TodoApi",
         Description = "API REST para gestión de listas de tareas (Todo Lists) con sus respectivos ítems",
     });
